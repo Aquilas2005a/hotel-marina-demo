@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block titre %}Commande reçue — {{ hotel.hotel_name }}{% endblock %}
+{% block contenu %}
+<section class="booking-page confirmation-page">
+  <div class="booking-panel">
+    <span class="eyebrow">COMMANDE REÇUE</span>
+    <h1>Merci, {{ order.guest_name }}.</h1>
+    <p>La cuisine a reçu ta commande. L’équipe mettra son état à jour depuis l’administration.</p>
+    {% for message in messages %}<p class="setup-note">{{ message }}</p>{% endfor %}
+    <dl class="reservation-summary">
+      <div><dt>Référence</dt><dd>{{ order.reference }}</dd></div>
+      <div><dt>Service</dt><dd>{{ order.get_service_type_display }}{% if order.room_number %} · chambre {{ order.room_number }}{% endif %}{% if order.table %} · {{ order.table.name }}{% endif %}</dd></div>
+      {% for line in order.lines.all %}
+      <div><dt>{{ line.item_name }} × {{ line.quantity }}{% if line.options %}<small>{{ line.options }}</small>{% endif %}</dt><dd>{{ line.line_total }} FCFA</dd></div>
+      {% endfor %}
+      <div><dt>Total</dt><dd>{{ order.total_price }} FCFA</dd></div>
+      <div><dt>État de la commande</dt><dd>{{ order.get_status_display }}</dd></div>
+      <div><dt>État du paiement</dt><dd>{{ order.get_payment_status_display }}</dd></div>
+    </dl>
+    {% if invoice %}<a class="button button-dark" href="{% url 'consulter_facture' number=invoice.number %}">Afficher le reçu de paiement</a>{% endif %}
+    {% if fedapay_enabled and order.payment_status != 'paid' and order.status != 'cancelled' %}<form method="post" action="{% url 'payer_commande' reference=order.reference %}">{% csrf_token %}<button class="button button-gold" type="submit">Payer par FedaPay / Mobile Money <span>→</span></button></form>{% elif not fedapay_enabled %}<div class="payment-note"><strong>Paiement FedaPay désactivé</strong><span>Une clé secrète active est nécessaire pour lancer le paiement.</span></div>{% endif %}
+    <a class="button button-dark" href="{% url 'accueil' %}">Retour à l’accueil</a>
+  </div>
+</section>
+{% endblock %}

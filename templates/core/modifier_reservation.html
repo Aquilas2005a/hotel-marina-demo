@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+{% block titre %}Modifier une réservation — {{ hotel.hotel_name }}{% endblock %}
+{% block contenu %}
+<section class="booking-page"><div class="booking-panel"><span class="eyebrow">RÉSERVATION {{ reservation.reference }}</span><h1>Modifier la demande.</h1><p>Cette modification est réservée aux demandes en attente et non payées. La disponibilité et le prix seront recalculés à l’enregistrement.</p>
+<form method="post" class="reservation-form">{% csrf_token %}{% for error in form.non_field_errors %}<small class="form-error">{{ error }}</small>{% endfor %}{% for field in form %}<label>{{ field.label }}{{ field }}{% for error in field.errors %}<small class="form-error">{{ error }}</small>{% endfor %}</label>{% endfor %}<button class="button button-gold" type="submit">Enregistrer les modifications <span>→</span></button></form>
+<a class="text-link" href="{% url 'mon_compte' %}">← Retour à mon compte</a></div><aside class="booking-aside"><h2>Nouvelle vérification.</h2><p>Le serveur revérifie l’inventaire au moment de l’enregistrement, même si la disponibilité a changé depuis l’ouverture de cette page.</p><div class="payment-note"><strong>Demande non payée</strong><span>Une réservation en cours de paiement ou déjà réglée ne peut pas être modifiée ici.</span></div></aside></section>
+{% endblock %}

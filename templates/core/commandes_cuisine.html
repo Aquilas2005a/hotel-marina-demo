@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block titre %}File cuisine — {{ hotel.hotel_name }}{% endblock %}
+{% block contenu %}
+<section class="rooms section-wrap staff-dashboard kitchen-board">
+  <div class="section-heading">
+    <div><span class="eyebrow">ESPACE RESTAURANT · CUISINE</span><h1>File des commandes</h1><p class="section-lead">{{ actives }} commande(s) à traiter. Les plus anciennes apparaissent en premier.</p></div>
+    <div class="dashboard-actions"><a class="button button-dark" href="{% url 'tableau_restaurant' %}">Tableau restaurant</a></div>
+  </div>
+  {% for message in messages %}<p class="setup-note">{{ message }}</p>{% endfor %}
+  <section class="dashboard-panel dashboard-wide">
+    <form method="get" class="reservation-form report-filters">
+      <label>Filtrer par état
+        <select name="etat">
+          <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Commandes actives</option>
+          {% for value,label in status_choices %}<option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+        </select>
+      </label>
+      <button class="button button-gold" type="submit">Filtrer</button>
+    </form>
+  </section>
+  {% for order in page_obj %}
+  <article class="dashboard-panel dashboard-wide kitchen-card">
+    <div class="section-heading">
+      <div><span class="eyebrow">{{ order.get_status_display }} · {{ order.created_at|date:'d/m/Y H:i' }}</span><h2>{{ order.reference }}</h2><p>{{ order.guest_name }} · {{ order.get_service_type_display }}{% if order.table %} · {{ order.table.name }}{% endif %}{% if order.room_number %} · Chambre {{ order.room_number }}{% endif %}</p></div>
+      <strong>{{ order.total_price }} FCFA</strong>
+    </div>
+    <ul>{% for line in order.lines.all %}<li><strong>{{ line.quantity }} × {{ line.item_name }}</strong>{% if line.options %} · {{ line.options }}{% endif %} — {{ line.line_total }} FCFA</li>{% endfor %}</ul>
+    {% if order.notes %}<p><strong>Instructions :</strong> {{ order.notes }}</p>{% endif %}
+    <div class="reservation-actions kitchen-actions"><a class="button button-dark" href="{% url 'detail_commande_cuisine' reference=order.reference %}">Détail et ticket imprimable</a><span>Paiement : {{ order.get_payment_status_display }}</span>
+      {% if user.is_superuser or perms.core.change_restaurantorder %}<form method="post" action="{% url 'action_commande_restaurant' reference=order.reference %}">{% csrf_token %}{% if order.status == 'pending' %}<button name="action" value="preparing">Commencer la préparation</button><button name="action" value="cancelled">Annuler</button>{% elif order.status == 'preparing' %}<button name="action" value="ready">Marquer prête</button><button name="action" value="cancelled">Annuler</button>{% elif order.status == 'ready' %}<button name="action" value="delivered">Marquer servie</button>{% endif %}</form>{% endif %}
+    </div>
+  </article>
+  {% empty %}<section class="dashboard-panel dashboard-wide"><p>Aucune commande ne correspond à ce filtre.</p></section>{% endfor %}
+  {% if page_obj.paginator.num_pages > 1 %}<nav class="dashboard-actions" aria-label="Pagination"><span>Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}</span>{% if page_obj.has_previous %}<a class="button button-dark" href="?etat={{ status_filter }}&page={{ page_obj.previous_page_number }}">Précédente</a>{% endif %}{% if page_obj.has_next %}<a class="button button-dark" href="?etat={{ status_filter }}&page={{ page_obj.next_page_number }}">Suivante</a>{% endif %}</nav>{% endif %}
+</section>
+{% endblock %}

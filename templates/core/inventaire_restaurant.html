@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block titre %}Inventaire restaurant — {{ hotel.hotel_name }}{% endblock %}
+{% block contenu %}
+<section class="rooms section-wrap staff-dashboard">
+  <div class="section-heading"><div><span class="eyebrow">ESPACE RESTAURANT · STOCK</span><h1>Inventaire restaurant</h1><p class="section-lead">{{ items|length }} article(s) suivis · {{ low_stock_count }} sous leur seuil de réapprovisionnement.</p></div><div class="dashboard-actions"><a class="button button-dark" href="{% url 'tableau_restaurant' %}">Retour au restaurant</a><a class="button button-dark" href="{% url 'commandes_cuisine' %}">Ouvrir la cuisine</a></div></div>
+  {% for message in messages %}<p class="setup-note">{{ message }}</p>{% endfor %}
+  <div class="dashboard-columns">
+    <section class="dashboard-panel"><h2>Stock courant</h2>
+      {% for item in items %}<article class="inventory-item {% if item.stock_quantity <= item.stock_minimum %}inventory-low{% endif %}"><div><strong>{{ item.name }}</strong><span>{{ item.category }} · {{ item.price }} FCFA</span><strong class="inventory-count">{{ item.stock_quantity }} unité(s)</strong>{% if item.stock_quantity <= item.stock_minimum %}<small class="inventory-warning">À réapprovisionner (seuil : {{ item.stock_minimum }})</small>{% else %}<small>Seuil d’alerte : {{ item.stock_minimum }}</small>{% endif %}</div>
+      {% if can_adjust %}<div class="inventory-actions"><form method="post" action="{% url 'action_stock_restaurant' item_id=item.pk %}" class="reservation-form">{% csrf_token %}<label>Variation (+ entrée, − sortie)<input name="delta" type="number" min="-1000" max="1000" required></label><label>Motif obligatoire<input name="reason" maxlength="200" required></label><button type="submit">Ajuster le stock</button></form><form method="post" action="{% url 'action_seuil_stock_restaurant' item_id=item.pk %}" class="reservation-form">{% csrf_token %}<label>Nouveau seuil<input name="minimum" type="number" min="0" max="100000" value="{{ item.stock_minimum }}" required></label><button type="submit">Enregistrer le seuil</button></form></div>{% endif %}</article>{% empty %}<p>Aucun article n’a le suivi de stock activé. Active-le sur la fiche d’un plat.</p>{% endfor %}
+    </section>
+    <section class="dashboard-panel"><h2>Historique récent</h2>{% for movement in movements %}<article><div><strong>{{ movement.item.name }} · {{ movement.delta }} unité(s)</strong><span>{{ movement.created_at|date:'d/m/Y H:i' }} · {{ movement.actor_label|default:'Système' }}</span><small>{{ movement.reason }}</small></div>{% if movement.order %}<a href="{% url 'detail_commande_cuisine' reference=movement.order.reference %}">{{ movement.order.reference }}</a>{% endif %}</article>{% empty %}<p>Aucun mouvement de stock enregistré.</p>{% endfor %}</section>
+  </div>
+</section>
+{% endblock %}

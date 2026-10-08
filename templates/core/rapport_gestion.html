@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block titre %}Rapports de gestion — {{ hotel.hotel_name }}{% endblock %}
+{% block contenu %}
+<section class="rooms section-wrap staff-dashboard">
+  <div class="section-heading">
+    <div><span class="eyebrow">GESTION · RAPPORTS</span><h1>Activité de l’hôtel</h1><p class="section-lead">Réservations par date d’arrivée, commandes par date de création, recettes selon les paiements confirmés.</p></div>
+    <div class="dashboard-actions"><a class="button button-dark" href="{% url 'tableau_gestion' %}">Retour au tableau</a></div>
+  </div>
+  <section class="dashboard-panel dashboard-wide">
+    <form method="get" class="reservation-form report-filters">
+      <label>Du <input type="date" name="debut" value="{{ debut|date:'Y-m-d' }}" required></label>
+      <label>Au <input type="date" name="fin" value="{{ fin|date:'Y-m-d' }}" required></label>
+      <button class="button button-gold" type="submit">Afficher la période</button>
+      <button class="button button-dark" type="submit" name="format" value="csv">Télécharger le CSV</button>
+    </form>
+  </section>
+  <div class="dashboard-metrics">
+    <article><span>SÉJOURS DÉBUTANT SUR LA PÉRIODE</span><strong>{{ nombre_reservations }}</strong><small>{{ reservations_confirmees }} confirmée(s) · {{ reservations_annulees }} annulée(s)</small></article>
+    <article><span>RECETTES DES SÉJOURS PAYÉS</span><strong>{{ sejours_encaisse }} FCFA</strong></article>
+    <article><span>COMMANDES RESTAURANT</span><strong>{{ nombre_commandes }}</strong><small>{{ commandes_servies }} servie(s)</small></article>
+    <article><span>RECETTES RESTAURANT</span><strong>{{ restaurant_encaisse }} FCFA</strong><small>Total encaissé : {{ total_encaisse }} FCFA</small></article>
+  </div>
+  <div class="dashboard-metrics">
+    <article><span>OCCUPATION DES UNITÉS</span><strong>{% if chambres_nuites_disponibles %}{{ occupation_percent }} %{% else %}—{% endif %}</strong><small>{{ chambres_nuites_occupees }} nuitées occupées sur {{ chambres_nuites_disponibles }} disponibles, hors blocages</small></article>
+    <article><span>TAUX DE CONFIRMATION</span><strong>{% if nombre_reservations %}{{ reservations_confirmees|floatformat:0 }} / {{ nombre_reservations }}{% else %}—{% endif %}</strong><small>Séjours arrivant pendant la période</small></article>
+  </div>
+  <section class="dashboard-panel dashboard-wide"><h2>Évolution par rapport à la période précédente</h2><p class="section-lead">Comparaison avec une période de même durée, immédiatement antérieure : {{ previous_start|date:'d/m/Y' }} au {{ previous_end|date:'d/m/Y' }}.</p><div class="dashboard-metrics"><article><span>ÉCART DES RECETTES ENCAISSÉES</span><strong>{% if ecart_total_encaisse > 0 %}+{% endif %}{{ ecart_total_encaisse }} FCFA</strong><small>Période précédente : {{ previous_total_encaisse }} FCFA</small></article><article><span>ÉCART DES RÉSERVATIONS</span><strong>{% if ecart_reservations > 0 %}+{% endif %}{{ ecart_reservations }}</strong><small>{{ previous_reservation_count }} réservation(s) sur la période précédente</small></article><article><span>ÉCART DES COMMANDES</span><strong>{% if ecart_commandes > 0 %}+{% endif %}{{ ecart_commandes }}</strong><small>{{ previous_order_count }} commande(s) sur la période précédente</small></article></div></section>
+  <section class="dashboard-panel dashboard-wide">
+    <h2>Tendance des recettes encaissées</h2>
+    <p class="section-lead">Les séjours sont attribués à leur date d’arrivée ; les commandes restaurant à leur date de création. Les périodes longues sont regroupées par semaine.</p>
+    {% for point in tendance_recettes %}<div class="analytics-row"><span>{{ point.day|date:'d/m/Y' }}</span><div class="analytics-track"><span style="width:{{ point.bar_percent }}%"></span></div><strong>{{ point.total }} FCFA</strong><small>Séjours {{ point.stays }} · restaurant {{ point.restaurant }}</small></div>{% empty %}<p>Aucune donnée sur cette période.</p>{% endfor %}
+  </section>
+  <div class="dashboard-grid">
+    <section class="dashboard-panel"><h2>Recettes par catégorie de chambre</h2>{% for row in categories_chambres %}<article><div><strong>{{ row.room__category }}</strong><span>{{ row.reservations }} séjour(s)</span></div><strong>{{ row.revenue }} FCFA</strong></article>{% empty %}<p>Aucune recette de séjour payée.</p>{% endfor %}</section>
+    <section class="dashboard-panel"><h2>Catégories restaurant</h2>{% for row in categories_restaurant %}<article><div><strong>{{ row.menu_item__category }}</strong><span>{{ row.quantity }} article(s)</span></div><strong>{{ row.revenue }} FCFA</strong></article>{% empty %}<p>Aucune recette restaurant payée.</p>{% endfor %}</section>
+    <section class="dashboard-panel"><h2>Meilleurs clients</h2>{% for row in meilleurs_clients %}<article><div><strong>{{ row.guest_name }}</strong><span>{{ row.guest_email }} · {{ row.stays }} séjour(s)</span></div><strong>{{ row.revenue }} FCFA</strong></article>{% empty %}<p>Aucun séjour encaissé.</p>{% endfor %}</section>
+    <section class="dashboard-panel"><h2>Plats les plus vendus</h2>{% for row in meilleurs_plats %}<article><div><strong>{{ row.item_name }}</strong><span>{{ row.quantity }} vendu(s)</span></div><strong>{{ row.revenue }} FCFA</strong></article>{% empty %}<p>Aucun plat encaissé.</p>{% endfor %}</section>
+  </div>
+  <section class="dashboard-panel dashboard-wide">
+    <h2>Réservations · {{ debut|date:'d/m/Y' }} au {{ fin|date:'d/m/Y' }}</h2>
+    {% for reservation in reservations %}
+      <article><div><strong>{{ reservation.reference }} · {{ reservation.guest_name }}</strong><span>{{ reservation.room.name }} · {{ reservation.arrival|date:'d/m/Y' }} → {{ reservation.departure|date:'d/m/Y' }} · {{ reservation.total_price }} FCFA</span></div><span>{{ reservation.get_status_display }} · {{ reservation.get_payment_status_display }}</span></article>
+    {% empty %}<p>Aucun séjour ne commence dans cette période.</p>{% endfor %}
+    {% if nombre_reservations > 100 %}<p>Les tableaux affichent les 100 premiers résultats ; le CSV contient la période complète.</p>{% endif %}
+  </section>
+  <section class="dashboard-panel dashboard-wide">
+    <h2>Commandes restaurant</h2>
+    {% for order in commandes %}
+      <article><div><strong>{{ order.reference }} · {{ order.guest_name }}</strong><span>{{ order.created_at|date:'d/m/Y H:i' }} · {{ order.total_price }} FCFA</span></div><span>{{ order.get_status_display }} · {{ order.get_payment_status_display }}</span></article>
+    {% empty %}<p>Aucune commande dans cette période.</p>{% endfor %}
+  </section>
+</section>
+{% endblock %}

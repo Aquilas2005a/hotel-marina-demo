@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block titre %}Ticket {{ order.reference }} — {{ hotel.hotel_name }}{% endblock %}
+{% block contenu %}
+<style>
+.kitchen-ticket{max-width:560px;margin:48px auto;padding:32px;background:#fff;border:1px solid #dedbd4;color:#252525;font-family:monospace}
+.kitchen-ticket h1,.kitchen-ticket h2{text-align:center}.kitchen-ticket hr{border:0;border-top:1px dashed #777;margin:18px 0}.kitchen-ticket li{padding:8px 0}.ticket-controls{display:flex;gap:12px;justify-content:center;margin:20px auto}
+@media print{.demo-bar,.site-header,.site-footer,.ticket-controls{display:none!important}body,main{margin:0!important;padding:0!important;background:#fff!important}.kitchen-ticket{max-width:none;width:76mm;margin:0;padding:4mm;border:0;box-shadow:none;font-size:12pt}}
+</style>
+<section class="kitchen-ticket">
+  <h1>{{ hotel.hotel_name }}</h1><h2>TICKET DE CUISINE</h2><hr>
+  <p><strong>Commande :</strong> {{ order.reference }}</p>
+  <p><strong>Reçue :</strong> {{ order.created_at|date:'d/m/Y H:i' }}</p>
+  <p><strong>Service :</strong> {{ order.get_service_type_display }}{% if order.table %} · {{ order.table.name }}{% endif %}{% if order.room_number %} · chambre {{ order.room_number }}{% endif %}</p>
+  <p><strong>Client :</strong> {{ order.guest_name }}{% if order.guest_phone %} · {{ order.guest_phone }}{% endif %}</p><hr>
+  <ul>{% for line in order.lines.all %}<li><strong>{{ line.quantity }} × {{ line.item_name }}</strong>{% if line.options %}<br>Options : {{ line.options }}{% endif %}<br>{{ line.line_total }} FCFA</li>{% endfor %}</ul>
+  {% if order.notes %}<hr><p><strong>Instructions :</strong><br>{{ order.notes|linebreaksbr }}</p>{% endif %}
+  <hr><p><strong>Total :</strong> {{ order.total_price }} FCFA</p>
+  <p>État : {{ order.get_status_display }} · Paiement : {{ order.get_payment_status_display }}</p>
+</section>
+<div class="ticket-controls"><button class="button button-gold" type="button" onclick="window.print()">Imprimer le ticket</button><a class="button button-dark" href="{% url 'commandes_cuisine' %}">Retour à la file</a></div>
+{% endblock %}

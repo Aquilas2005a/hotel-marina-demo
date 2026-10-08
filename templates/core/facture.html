@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block titre %}Facture {{ invoice.number }} — {{ hotel.hotel_name|default:'Naya Marina' }}{% endblock %}
+{% block contenu %}
+<section class="invoice-page">
+  <div class="invoice-actions"><a class="button button-gold" href="{% url 'facture_pdf' number=invoice.number %}">Télécharger le PDF</a><button class="button button-dark" type="button" onclick="window.print()">Imprimer</button><a class="text-link" href="{% url 'accueil' %}">Retour à l’hôtel</a></div>
+  <article class="invoice-paper">
+    <header><div><span class="eyebrow">FACTURE / REÇU DE PAIEMENT</span><h1>{{ hotel.hotel_name|default:'Naya Marina' }}</h1><p>{{ hotel.address }}{% if hotel.city %} · {{ hotel.city }}{% endif %}<br>{{ hotel.contact_email }}{% if hotel.phone %} · {{ hotel.phone }}{% endif %}</p></div><div class="invoice-number"><strong>{{ invoice.number }}</strong><span>Émis le {{ invoice.issued_at|date:'d/m/Y' }}</span></div></header>
+    <section class="invoice-customer"><span>CLIENT</span><strong>{{ invoice.customer_name }}</strong><small>{{ invoice.customer_email }}</small></section>
+    <table><thead><tr><th>Désignation</th><th>Montant</th></tr></thead><tbody><tr><td>{{ invoice.description }} — hors taxe, remise déduite le cas échéant</td><td>{{ invoice.subtotal }} FCFA</td></tr>{% if invoice.tax_rate %}<tr><td>Taxe incluse ({{ invoice.tax_rate }} %)</td><td>{{ invoice.tax_amount }} FCFA</td></tr>{% endif %}</tbody><tfoot><tr><th>Total payé</th><th>{{ invoice.amount }} FCFA</th></tr></tfoot></table>
+    {% if invoice.reservation and invoice.reservation.discount_amount %}<p class="invoice-note">Code promotionnel {{ invoice.reservation.promotion_code_used }} : {{ invoice.reservation.discount_amount }} FCFA de réduction, déjà déduits du total facturé.</p>{% endif %}
+    <p class="invoice-note">Devise : {{ invoice.currency }}. La taxe affichée est incluse dans le montant payé et utilise le taux configuré lors de l’émission. Vérifier les règles fiscales locales avant toute utilisation commerciale.</p>
+  </article>
+</section>
+{% endblock %}

@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+{% block titre %}Réserver un séjour — {{ hotel.hotel_name }}{% endblock %}
+{% block contenu %}
+<section class="booking-page"><div class="booking-panel"><span class="eyebrow">VOTRE SÉJOUR À {{ hotel.city|upper }}</span><h1>Préparez votre arrivée.</h1><p>Choisis une chambre, tes dates et le nombre de voyageurs. Le montant dépend du tarif par nuit et de la durée du séjour.</p>
+<form method="post" class="reservation-form">{% csrf_token %}{% for error in form.non_field_errors %}<small class="form-error">{{ error }}</small>{% endfor %}{% for field in form %}<label>{{ field.label }}{{ field }}{% for error in field.errors %}<small class="form-error">{{ error }}</small>{% endfor %}</label>{% endfor %}<button class="button button-gold" type="submit">Envoyer la demande <span>→</span></button></form>
+<a class="text-link" href="{% url 'accueil' %}#chambres">← Retour aux chambres</a></div><aside class="booking-aside"><h2>Un séjour qui vous ressemble.</h2><p>Ta demande sera enregistrée après une nouvelle vérification de la disponibilité par le serveur.</p><div class="payment-note"><strong>FedaPay / Mobile Money</strong><span>{% if fedapay_enabled %}Le paiement sera proposé après l’enregistrement de la demande.{% else %}Paiement désactivé jusqu’à la configuration d’une clé FedaPay active.{% endif %}</span></div></aside></section>
+{% endblock %}

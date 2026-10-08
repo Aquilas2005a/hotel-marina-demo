@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block titre %}Personnel — {{ hotel.hotel_name|default:'Naya Marina' }}{% endblock %}
+{% block contenu %}
+<section class="rooms section-wrap staff-dashboard">
+  <div class="section-heading"><div><span class="eyebrow">ACCÈS DU PERSONNEL</span><h2>Comptes et rôles</h2><p class="section-lead">Chaque compte reçoit uniquement le rôle sélectionné. Les droits détaillés restent gérés par les groupes Django.</p></div><a class="button button-dark" href="{% url 'tableau_equipe' %}">Retour au tableau</a></div>
+  {% for message in messages %}<p class="setup-note">{{ message }}</p>{% endfor %}
+  <div class="dashboard-columns">
+    <section class="dashboard-panel"><h3>Créer un compte employé</h3><form method="post" class="setup-form">{% csrf_token %}{{ form.as_p }}<button class="button button-gold" type="submit">Créer le compte</button></form></section>
+    <section class="dashboard-panel"><h3>Équipe actuelle</h3><p>Tu peux modifier le rôle et l’accès aux comptes employés. Ton propre compte et les superadministrateurs sont protégés.</p>{% for member in staff %}<article><div><strong>{{ member.get_full_name|default:member.username }}</strong><span>{{ member.email }} · {% for group in member.groups.all %}{{ group.name }}{% if not forloop.last %}, {% endif %}{% empty %}Aucun rôle attribué{% endfor %}</span></div><div><span>{% if member.is_active %}Actif{% else %}Désactivé{% endif %}</span>{% if member.pk != user.pk %}<form method="post" class="reservation-actions">{% csrf_token %}<input type="hidden" name="member_id" value="{{ member.pk }}"><input type="hidden" name="member_action" value="role"><label for="role-{{ member.pk }}">Nouveau rôle</label><select id="role-{{ member.pk }}" name="role">{% for value,label in form.fields.role.choices %}<option value="{{ value }}" {% if member.staff_role == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select><button type="submit">Enregistrer le rôle</button></form><form method="post" class="reservation-actions">{% csrf_token %}<input type="hidden" name="member_id" value="{{ member.pk }}">{% if member.is_active %}<button name="member_action" value="deactivate">Désactiver le compte</button>{% else %}<button name="member_action" value="activate">Réactiver le compte</button>{% endif %}</form>{% else %}<small>Compte actuellement connecté · modification protégée</small>{% endif %}</div></article>{% empty %}<p>Aucun compte personnel créé.</p>{% endfor %}</section>
+  </div>
+</section>
+{% endblock %}

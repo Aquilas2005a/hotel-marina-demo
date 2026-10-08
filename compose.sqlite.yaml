@@ -1,0 +1,60 @@
+name: naya-marina-sqlite
+
+services:
+  application:
+    build: .
+    restart: unless-stopped
+    container_name: naya-marina-sqlite
+    command: sh -c "python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "127.0.0.1:8091:8000"
+    volumes:
+      - .:/app
+      - ./backups:/backups
+    env_file:
+      - .env
+    environment:
+      DATABASE_ENGINE: sqlite
+      SQLITE_PATH: /app/database/db.sqlite3
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1}
+      DJANGO_CSRF_TRUSTED_ORIGINS: ${DJANGO_CSRF_TRUSTED_ORIGINS:-}
+      DJANGO_SECURE_SSL_REDIRECT: ${DJANGO_SECURE_SSL_REDIRECT:-0}
+      HOTEL_TAX_RATE: ${HOTEL_TAX_RATE:-0}
+      EMAIL_BACKEND: ${EMAIL_BACKEND:-django.core.mail.backends.console.EmailBackend}
+      EMAIL_HOST: ${EMAIL_HOST:-}
+      EMAIL_PORT: ${EMAIL_PORT:-587}
+      EMAIL_USE_TLS: ${EMAIL_USE_TLS:-1}
+      EMAIL_HOST_USER: ${EMAIL_HOST_USER:-}
+      EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD:-}
+      DEFAULT_FROM_EMAIL: ${DEFAULT_FROM_EMAIL:-noreply@hotel.local}
+      FEDAPAY_ENVIRONMENT: ${FEDAPAY_ENVIRONMENT:-sandbox}
+      FEDAPAY_SECRET_KEY: ${FEDAPAY_SECRET_KEY:-}
+      FEDAPAY_WEBHOOK_SECRET: ${FEDAPAY_WEBHOOK_SECRET:-}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen(urllib.request.Request('http://127.0.0.1:8000/health/', headers={'X-Forwarded-Proto':'https'}), timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+  worker_courriels:
+    build: .
+    command: python manage.py process_email_outbox --loop --interval 15
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_ENGINE: sqlite
+      SQLITE_PATH: /app/database/db.sqlite3
+      EMAIL_BACKEND: ${EMAIL_BACKEND:-django.core.mail.backends.console.EmailBackend}
+      EMAIL_HOST: ${EMAIL_HOST:-}
+      EMAIL_PORT: ${EMAIL_PORT:-587}
+      EMAIL_USE_TLS: ${EMAIL_USE_TLS:-1}
+      EMAIL_HOST_USER: ${EMAIL_HOST_USER:-}
+      EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD:-}
+      DEFAULT_FROM_EMAIL: ${DEFAULT_FROM_EMAIL:-noreply@hotel.local}
+      EMAIL_OUTBOX_ENCRYPTION_KEY: ${EMAIL_OUTBOX_ENCRYPTION_KEY:-}
+    volumes:
+      - .:/app
+    depends_on:
+      application:
+        condition: service_healthy

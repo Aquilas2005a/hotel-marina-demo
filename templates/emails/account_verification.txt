@@ -1,0 +1,8 @@
+Bonjour {{ user.first_name|default:user.username }},
+
+Pour activer votre compte sur {{ hotel.hotel_name }}, ouvrez ce lien :
+{{ verification_url }}
+
+Ou saisissez ce code alphanumérique sur la page de vérification : {{ code }}
+
+Le code est valable 30 minutes et ne peut être utilisé qu’une fois. Si vous n’avez pas créé ce compte, ignorez ce message.

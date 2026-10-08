@@ -1,0 +1,69 @@
+name: naya-marina-production
+
+services:
+  application:
+    build: .
+    command: sh -c "python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --access-logfile - --error-logfile -"
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    environment:
+      DATABASE_ENGINE: mariadb
+      MYSQL_HOST: base_de_donnees
+      MYSQL_PORT: 3306
+      DJANGO_DEBUG: "0"
+      DJANGO_USE_WHITENOISE: "1"
+      BACKUP_DIR: /backups
+    ports:
+      - "127.0.0.1:${APP_PORT:-8092}:8000"
+    volumes:
+      - ./backups:/backups
+      - fichiers_statiques:/app/staticfiles
+    depends_on:
+      base_de_donnees:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen(urllib.request.Request('http://127.0.0.1:8000/health/', headers={'X-Forwarded-Proto':'https'}), timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 45s
+
+  worker_courriels:
+    build: .
+    command: python manage.py process_email_outbox --loop --interval 15
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    environment:
+      DATABASE_ENGINE: mariadb
+      MYSQL_HOST: base_de_donnees
+      MYSQL_PORT: 3306
+      DJANGO_DEBUG: "0"
+      DJANGO_USE_WHITENOISE: "1"
+      BACKUP_DIR: /backups
+    volumes:
+      - ./backups:/backups
+    depends_on:
+      application:
+        condition: service_healthy
+
+  base_de_donnees:
+    image: mariadb:10.11
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Configure MYSQL_ROOT_PASSWORD dans l’environnement Compose}
+      MARIADB_DATABASE: ${MYSQL_DATABASE:?Configure MYSQL_DATABASE dans l’environnement Compose}
+      MARIADB_USER: ${MYSQL_USER:?Configure MYSQL_USER dans l’environnement Compose}
+      MARIADB_PASSWORD: ${MYSQL_PASSWORD:?Configure MYSQL_PASSWORD dans l’environnement Compose}
+    volumes:
+      - donnees_production:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  donnees_production:
+  fichiers_statiques:

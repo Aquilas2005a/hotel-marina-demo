@@ -1,0 +1,20 @@
+.setup-foot .setup-signature,
+.setup-attribution {
+  display: block;
+  margin-top: 8px;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
+.setup-finished .setup-signature {
+  margin-top: 26px;
+  color: #555;
+}
+
+.setup-attribution {
+  margin: -10px auto 24px;
+  text-align: center;
+}

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block titre %}Réservation {{ reservation.reference }} — {{ hotel.hotel_name }}{% endblock %}
+{% block contenu %}
+<section class="rooms section-wrap staff-dashboard">
+  <div class="section-heading">
+    <div><span class="eyebrow">RÉCEPTION · DOSSIER SÉJOUR</span><h2>{{ reservation.guest_name }}</h2><p class="section-lead">Référence {{ reservation.reference }} · {{ reservation.room.name }}{% if reservation.room_unit %} · chambre {{ reservation.room_unit.code }}{% endif %}</p></div>
+    <div class="dashboard-actions"><a class="button button-dark" href="{% url 'tableau_reception' %}">Retour à la réception</a></div>
+  </div>
+  {% for message in messages %}<p class="setup-note">{{ message }}</p>{% endfor %}
+  <div class="dashboard-metrics">
+    <article><span>SÉJOUR</span><strong>{{ reservation.arrival|date:'d/m/Y' }} → {{ reservation.departure|date:'d/m/Y' }}</strong><small>{{ reservation.nights }} nuit(s) · {{ reservation.guests }} voyageur(s)</small></article>
+    <article><span>ÉTAT</span><strong>{{ reservation.get_status_display }}</strong><small>{{ reservation.get_payment_status_display }}</small></article>
+    <article><span>TOTAL DU SÉJOUR</span><strong>{{ reservation.total_price }} FCFA</strong><small>Encaissé manuellement : {{ received }} FCFA</small></article>
+    <article><span>SOLDE À RÉGLER</span><strong>{{ outstanding }} FCFA</strong>{% if invoice %}<a href="{% url 'consulter_facture' number=invoice.number %}">Facture {{ invoice.number }}</a>{% endif %}</article>
+  </div>
+  <div class="dashboard-columns">
+    {% if reservation.status == 'pending' or reservation.status == 'confirmed' %}
+    <section class="dashboard-panel"><h3>Annuler cette réservation</h3><p>Si un montant a déjà été encaissé, son remboursement sera signalé comme restant à traiter.</p><form method="post">{% csrf_token %}<input type="hidden" name="action" value="cancel"><button class="button button-dark" type="submit">Annuler la réservation</button></form></section>
+    {% endif %}
+    {% if reservation.status == 'pending' or reservation.status == 'confirmed' %}
+    <section class="dashboard-panel"><h3>Modifier le séjour</h3><p>La nouvelle disponibilité et le tarif sont recalculés avant l’enregistrement. Une facture émise verrouille les données de facturation.</p>
+      <form method="post" class="reservation-form">{% csrf_token %}<input type="hidden" name="action" value="edit">{{ edit_form.as_p }}<button class="button button-dark" type="submit">Enregistrer les modifications</button></form>
+    </section>
+    {% endif %}
+    {% if reservation.status == 'confirmed' or reservation.status == 'checked_in' %}
+    <section class="dashboard-panel"><h3>Déplacer vers une autre unité</h3><p>Le déplacement conserve le tarif et les informations du séjour. Seules les unités propres et libres sont proposées.</p>
+      <form method="post" class="reservation-form">{% csrf_token %}<input type="hidden" name="action" value="move">{{ move_form.as_p }}<button class="button button-dark" type="submit">Changer la chambre</button></form>
+    </section>
+    {% endif %}
+    {% if payment_form %}
+    <section class="dashboard-panel"><h3>Enregistrer un encaissement</h3><p>Enregistre uniquement un paiement effectivement reçu à l’hôtel. Au solde complet, la réservation est confirmée et une facture est émise.</p>
+      <form method="post" class="reservation-form">{% csrf_token %}<input type="hidden" name="action" value="payment">{{ payment_form.as_p }}<button class="button button-dark" type="submit">Confirmer l’encaissement</button></form>
+    </section>
+    {% endif %}
+    <section class="dashboard-panel"><h3>Historique des encaissements</h3>{% for payment in payments %}<article><div><strong>{{ payment.amount }} FCFA · {{ payment.get_method_display }}</strong><span>{{ payment.received_at|date:'d/m/Y H:i' }} · {{ payment.received_by_label }}</span>{% if payment.reference %}<small>Référence : {{ payment.reference }}</small>{% endif %}</div></article>{% empty %}<p>Aucun encaissement manuel enregistré.</p>{% endfor %}</section>
+  </div>
+</section>
+{% endblock %}

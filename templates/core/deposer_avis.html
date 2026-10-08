@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block titre %}Votre avis — {{ hotel.hotel_name|default:'Naya Marina' }}{% endblock %}
+{% block contenu %}
+<section class="rooms section-wrap account-page">
+  <div class="section-heading">
+    <div><span class="eyebrow">AVIS CLIENT VÉRIFIÉ</span><h2>Votre séjour à {{ reservation.room.name }}</h2>
+      <p class="section-lead">Réservation {{ reservation.reference }} · {{ reservation.arrival|date:'d/m/Y' }} — {{ reservation.departure|date:'d/m/Y' }}</p>
+    </div>
+  </div>
+  {% for message in messages %}<p class="setup-note">{{ message }}</p>{% endfor %}
+  {% if avis %}
+    <article class="account-reservation">
+      <div><span class="eyebrow">{{ avis.get_status_display }}</span><h3>{{ avis.rating }}/5</h3><p>{{ avis.comment }}</p>
+        {% if avis.hotel_response %}<h3>Réponse de l’hôtel</h3><p>{{ avis.hotel_response }}</p>{% endif %}
+      </div>
+    </article>
+    <p class="section-lead">Un avis ne peut être envoyé qu’une seule fois pour ce séjour.</p>
+  {% else %}
+    <form method="post" class="setup-card" novalidate>
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      <p>Votre avis sera publié sur le site après vérification par l’équipe. Il doit décrire votre expérience réelle du séjour.</p>
+      <div class="form-field"><label for="{{ form.rating.id_for_label }}">{{ form.rating.label }}</label>{{ form.rating }}{{ form.rating.errors }}</div>
+      <div class="form-field"><label for="{{ form.comment.id_for_label }}">{{ form.comment.label }}</label>{{ form.comment }}{{ form.comment.errors }}</div>
+      <button class="button button-orange" type="submit">Envoyer mon avis pour publication</button>
+      <a class="text-link" href="{% url 'mon_compte' %}">Retour à mon compte</a>
+    </form>
+  {% endif %}
+</section>
+{% endblock %}

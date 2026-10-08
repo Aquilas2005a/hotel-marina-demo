@@ -1,0 +1,13 @@
+Bonjour {{ reservation.guest_name }},
+
+Votre demande de séjour à {{ hotel.hotel_name }} a bien été enregistrée.
+
+Référence : {{ reservation.reference }}
+Chambre : {{ reservation.room.name }}
+Dates : du {{ reservation.arrival|date:'d/m/Y' }} au {{ reservation.departure|date:'d/m/Y' }} ({{ reservation.nights }} nuit(s))
+Montant indicatif : {{ reservation.total_price }} FCFA
+{% if reservation.promotion_code_used %}Code appliqué : {{ reservation.promotion_code_used }} (remise de {{ reservation.discount_amount }} FCFA)
+{% endif %}
+La demande reste en attente jusqu’à la validation du paiement ou de l’équipe de l’hôtel. Aucun paiement n’a été effectué à ce stade.
+
+Conservez cette référence pour contacter l’hôtel.

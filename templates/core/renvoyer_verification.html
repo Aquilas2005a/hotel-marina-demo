@@ -1,0 +1,3 @@
+{% extends 'base.html' %}
+{% block titre %}Renvoyer le lien et le code — {{ hotel.hotel_name|default:'Naya Marina' }}{% endblock %}
+{% block contenu %}<section class="booking-page confirmation-page"><div class="booking-panel"><span class="eyebrow">VÉRIFICATION</span><h1>Renvoyer le lien et le code.</h1><p>Un nouveau courriel sera envoyé avec un lien et un code valable 30 minutes.</p><form method="post" class="reservation-form">{% csrf_token %}{% for field in form %}<label>{{ field.label }}{{ field }}{% for error in field.errors %}<small class="form-error">{{ error }}</small>{% endfor %}</label>{% endfor %}<button class="button button-gold" type="submit">Envoyer le lien et le code</button></form></div></section>{% endblock %}

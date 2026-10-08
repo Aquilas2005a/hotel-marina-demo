@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block titre %}Informations du site — {{ hotel.hotel_name|default:'Naya Marina' }}{% endblock %}
+{% block contenu %}
+<section class="rooms section-wrap information-page">
+  <div class="section-heading"><div><span class="eyebrow">INFORMATIONS</span><h1>À propos du site</h1><p class="section-lead">Informations sur cette application de démonstration et ses services.</p></div></div>
+  <article class="dashboard-panel information-section" id="apropos"><h2>À propos</h2><p>{{ hotel.hotel_name|default:'Naya Marina' }} est une application de démonstration de gestion hôtelière réalisée et mise en place par 3A Technologie. Les chambres, réservations, prix et témoignages de démonstration peuvent être fictifs. Ce site n’est pas affilié à un hôtel réel.</p></article>
+  <article class="dashboard-panel information-section" id="mentions"><h2>Mentions légales</h2><p>Éditeur du projet : 3A Technologie. Ce site est un projet pédagogique et une maquette logicielle. Les coordonnées d’une entreprise exploitante, l’adresse de l’hébergeur et les mentions réglementaires doivent être renseignées par l’exploitant avant tout usage commercial.</p></article>
+  <article class="dashboard-panel information-section" id="politiques"><h2>Confidentialité et données</h2><p>Les informations saisies dans cette démonstration servent au fonctionnement des comptes et des réservations de test. N’utilisez pas de données personnelles ou de paiement réelles. Avant une mise en production, l’exploitant doit publier sa politique de confidentialité, définir les durées de conservation et configurer les demandes d’accès ou de suppression conformément aux règles applicables.</p></article>
+  <article class="dashboard-panel information-section" id="conditions"><h2>Conditions d’utilisation</h2><p>Le site est fourni à des fins de démonstration. Les contenus et disponibilités affichés ne constituent pas une offre réelle d’hébergement. Une réservation de démonstration ne garantit pas un séjour auprès d’un établissement réel.</p></article>
+  <article class="dashboard-panel information-section" id="paiement"><h2>Paiement sécurisé</h2><p>Les paiements de l’application sont prévus pour l’environnement sandbox de FedaPay. Les numéros et résultats de test servent uniquement aux essais ; aucun paiement réel ne doit être effectué dans cette démonstration. L’activation et la recette d’un compte fournisseur restent nécessaires avant une exploitation.</p></article>
+  <a class="text-link" href="{% url 'accueil' %}">Retour à l’accueil <span>→</span></a>
+</section>
+{% endblock %}

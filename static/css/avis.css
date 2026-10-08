@@ -1,0 +1,22 @@
+.testimonial-carousel{max-width:920px;margin:30px auto 0}
+.testimonial-track{display:flex;gap:18px;overflow-x:auto;overscroll-behavior-inline:contain;scroll-snap-type:x mandatory;scroll-behavior:smooth;padding:2px 2px 14px;text-align:left;scrollbar-width:thin;scrollbar-color:#c4a36a #e9e6df}
+.testimonial-slide{flex:0 0 100%;min-height:205px;scroll-snap-align:start;background:#fff;border:1px solid #ececec;padding:24px;display:flex;flex-direction:column;align-items:flex-start}
+.testimonial-slide p{font-size:11px;line-height:1.8;color:#777;min-height:55px;margin:14px 0}
+.testimonial-slide strong{font-size:11px;color:#333}
+.testimonial-slide small{margin-top:5px;font-size:9px;color:#999}
+.testimonial-controls{display:flex;justify-content:center;align-items:center;gap:20px;margin-top:14px}
+.testimonial-controls button{width:38px;height:38px;border:1px solid #cfc8ba;background:#fff;color:#333;cursor:pointer;font-size:18px}
+.testimonial-controls button:hover,.testimonial-controls button:focus-visible{background:#fe9126;color:#fff;border-color:#fe9126}
+.testimonial-controls [data-testimonial-position]{min-width:48px;font-size:10px;color:#777}
+.testimonial-submit{margin-top:23px}
+.review-state{font-size:10px;color:#74613d}
+@media(max-width:600px){.testimonial-slide{padding:20px}.testimonial-carousel{margin-top:22px}}
+@media(prefers-reduced-motion:reduce){.testimonial-track{scroll-behavior:auto}}
+.information-page{padding-top:70px;padding-bottom:90px}
+.information-page>.section-heading{margin-bottom:36px}
+.information-page>.section-heading h1{font:700 34px var(--font);color:#333;margin:12px 0}
+.information-section{margin:0 0 18px;scroll-margin-top:24px}
+.information-section h2{font:700 19px var(--font);margin:0 0 12px;color:#333}
+.information-section p{max-width:850px;color:#666;font-size:12px;line-height:1.9;margin:0}
+.information-page>.text-link{margin-top:15px}
+@media(max-width:700px){.information-page{padding-top:45px;padding-bottom:60px}.site-header.menu-open .main-nav{display:flex}}

@@ -1,0 +1,10 @@
+Bonjour {{ order.guest_name }},
+
+Votre commande auprès de {{ hotel.hotel_name }} a bien été enregistrée.
+
+Référence : {{ order.reference }}
+Service : {{ order.get_service_type_display }}
+Total indicatif : {{ order.total_price }} FCFA
+{% for line in order.lines.all %}- {{ line.quantity }} × {{ line.item_name }}{% if line.options %} ({{ line.options }}){% endif %}
+{% endfor %}
+La commande est en attente de préparation. Conservez cette référence pour la suivre.

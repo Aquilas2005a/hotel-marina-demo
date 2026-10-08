@@ -1,0 +1,3 @@
+{% extends 'base.html' %}
+{% block titre %}Lien invalide — {{ hotel.hotel_name|default:'Naya Marina' }}{% endblock %}
+{% block contenu %}<section class="booking-page confirmation-page"><div class="booking-panel"><span class="eyebrow">VÉRIFICATION</span><h1>Ce lien n’est plus valide.</h1><p>Il a déjà été utilisé ou a expiré. Demande un nouveau lien pour activer ton compte.</p><a class="button button-gold" href="{% url 'renvoyer_verification' %}">Renvoyer le lien</a></div></section>{% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block titre %}Planning des chambres — {{ hotel.hotel_name }}{% endblock %}
+{% block contenu %}
+<section class="rooms section-wrap staff-dashboard">
+  <div class="section-heading">
+    <div><span class="eyebrow">ESPACE ÉQUIPE · INVENTAIRE</span><h2>Planning des chambres</h2><p class="section-lead">Disponibilités, séjours et blocages pour les 14 jours à partir de la date choisie.</p></div>
+    <a class="button button-dark" href="{% url 'tableau_equipe' %}">Retour au tableau de bord</a>
+  </div>
+  {% for message in messages %}<p class="setup-note">{{ message }}</p>{% endfor %}
+  <form method="get" class="planning-date-form"><label for="planning-debut">Afficher à partir du</label><input id="planning-debut" type="date" name="debut" value="{{ debut|date:'Y-m-d' }}"><button class="button button-dark" type="submit">Afficher</button></form>
+  <div class="planning-legend"><span class="planning-free-key">Libre</span><span class="planning-occupied-key">Séjour</span><span class="planning-blocked-key">Maintenance / hors service</span><span class="planning-conflict-key">Conflit</span></div>
+  <div class="planning-scroll"><table class="planning-table"><thead><tr><th class="planning-unit-heading">Chambre / catégorie</th>{% for jour in jours %}<th><span>{{ jour|date:'D' }}</span><strong>{{ jour|date:'d/m' }}</strong></th>{% endfor %}</tr></thead><tbody>
+  {% for ligne in lignes %}<tr><th class="planning-unit-heading"><strong>{{ ligne.unit.code }}</strong><span>{{ ligne.unit.room.name }}</span><small>{{ ligne.unit.get_housekeeping_status_display }}</small></th>{% for cellule in ligne.cells %}<td class="planning-{{ cellule.kind }}"><strong>{{ cellule.title }}</strong><small>{{ cellule.detail }}</small></td>{% endfor %}</tr>{% empty %}<tr><td colspan="15">Aucune chambre physique active. Ajoute des unités depuis l’administration des chambres.</td></tr>{% endfor %}
+  </tbody></table></div>
+  <p class="planning-admin-note">Modifie les états de ménage dans <a href="/admin/core/roomunit/">l’administration des chambres physiques</a>. Ajoute ou désactive les blocages depuis la fiche de chaque unité.</p>
+</section>
+{% endblock %}

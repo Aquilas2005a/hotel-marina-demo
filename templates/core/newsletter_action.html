@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block titre %}Newsletter — {{ hotel.hotel_name|default:'Naya Marina' }}{% endblock %}
+{% block contenu %}
+<section class="rooms section-wrap account-page">
+  <span class="eyebrow">PRÉFÉRENCES E-MAIL</span>
+  {% if not valid_token %}
+    <h1>Lien expiré ou invalide</h1>
+    <p class="section-lead">Le lien n’est plus valable. Recommencez l’inscription depuis le formulaire du site ou utilisez un lien récent.</p>
+  {% elif action == 'confirmation' and request.method == 'GET' and subscription.status != 'active' %}
+    <h1>Confirmer votre inscription</h1>
+    <p class="section-lead">Confirmez que vous souhaitez recevoir les nouvelles de l’hôtel à {{ subscription.email }}.</p>
+    <form method="post">{% csrf_token %}<button class="button button-orange" type="submit">Confirmer mon inscription</button></form>
+  {% elif action == 'confirmation' %}
+    <h1>Inscription confirmée</h1>
+    <p class="section-lead">Votre choix est enregistré. Vous recevrez les communications de l’hôtel.</p>
+  {% elif action == 'desinscription' and request.method == 'GET' and subscription.status != 'unsubscribed' %}
+    <h1>Confirmer la désinscription</h1>
+    <p class="section-lead">Vous ne recevrez plus les courriels de la newsletter à {{ subscription.email }}.</p>
+    <form method="post">{% csrf_token %}<button class="button button-orange" type="submit">Me désinscrire</button></form>
+  {% else %}
+    <h1>Désinscription enregistrée</h1>
+    <p class="section-lead">Votre adresse ne recevra plus les courriels de la newsletter.</p>
+  {% endif %}
+</section>
+{% endblock %}

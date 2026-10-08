@@ -1,0 +1,12 @@
+Bonjour {{ invoice.customer_name }},
+
+Le paiement associé à votre réservation ou commande a été confirmé par le fournisseur.
+
+Référence de facture : {{ invoice.number }}
+Montant payé : {{ invoice.amount }} FCFA
+{% if invoice.reservation and invoice.reservation.discount_amount %}Remise appliquée : {{ invoice.reservation.discount_amount }} FCFA (code {{ invoice.reservation.promotion_code_used }})
+{% endif %}
+Votre reçu est disponible ici :
+{{ invoice_url }}
+
+Merci d’avoir choisi {{ hotel.hotel_name }}.
