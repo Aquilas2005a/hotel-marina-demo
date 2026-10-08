@@ -26,6 +26,7 @@ Application indépendante en Python/Django avec SQLite ou MariaDB. Le projet rep
 - Corrections manuelles de stock dans l’espace restaurant avec motif obligatoire, contrôle anti-stock négatif et inscription dans le journal ; la quantité n’est plus modifiable directement dans la fiche d’administration.
 - Administration des chambres, clients et réservations dans `/admin/`.
 - Gestion des comptes employés et rôles depuis `/equipe/personnel/` pour le gestionnaire ; rôles : gestionnaire hôtelier, réceptionniste et équipe restaurant. Les droits sont appliqués par groupes Django.
+- Réinitialisation du mot de passe par lien e-mail pour les comptes clients et personnel : le lien est disponible sur la connexion du site et celle de l’administration. Le changement n’est effectif qu’après ouverture du lien reçu par e-mail.
 - Depuis le même espace, le Gestionnaire peut changer le rôle et activer/désactiver les employés ; il ne peut pas modifier son compte depuis cet écran, ni désactiver ou rétrograder le dernier Gestionnaire actif.
 - Rapport de gestion privé `/equipe/rapports/` avec filtre de dates, recettes encaissées, comparaison à la période précédente et export CSV des séjours/commandes ; seuls le gestionnaire et l’administrateur peuvent l’ouvrir.
 - Page d’informations dédiée et liens de menu/pied de page qui aboutissent à des sections existantes ; le menu mobile est actionnable.
@@ -93,6 +94,8 @@ Ne pas mettre de secrets dans le dépôt, les pages HTML ou le navigateur. Les c
 
 - **FedaPay** : l’application impose `FEDAPAY_ENVIRONMENT=sandbox`, y compris avec `compose.production.yaml`. Configure `FEDAPAY_SECRET_KEY` avec une clé `sk_sandbox_…` active et `FEDAPAY_WEBHOOK_SECRET` avec le secret distinct du point de terminaison. Le retour du navigateur ne suffit pas à confirmer le paiement : le statut est vérifié par l’API authentifiée et les webhooks signés sont dédupliqués. Le remboursement fournisseur reste manuel tant que son API et son rapprochement ne sont pas implémentés.
 - **Courriels de production** : renseigner `EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend`, `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_USE_TLS`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD` et `DEFAULT_FROM_EMAIL` avec des identifiants valides. `EMAIL_OUTBOX_ENCRYPTION_KEY` doit être une clé Fernet secrète et persistante, identique dans l’application et le worker. Générer une clé avec `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"`; ne pas la changer tant qu’une file contient des messages chiffrés. Le backend console local ne valide pas la livraison SMTP.
+
+Pour demander un lien de réinitialisation, ouvrir `/compte/mot-de-passe/oubli/` et saisir l’adresse e-mail du compte. Sur Vercel, la livraison dépend des paramètres SMTP de production ci-dessus. Vérifier également les courriers indésirables. Les comptes employés peuvent aussi être créés avec un nouveau mot de passe depuis `/equipe/personnel/` par un gestionnaire autorisé.
 
 Les secrets locaux se configurent dans `.env` et ne doivent pas être copiés dans le dépôt. Pour une installation de déploiement, utilise `.env.production` dérivé du modèle fourni ; FedaPay y reste aussi en mode sandbox.
 
