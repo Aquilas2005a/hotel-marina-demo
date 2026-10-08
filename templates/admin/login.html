@@ -1,0 +1,45 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block bodyclass %}{{ block.super }} login{% endblock %}
+{% block content_title %}{% endblock %}
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  {% if form.errors and not form.non_field_errors %}
+    <p class="errornote">{% translate "Please correct the error below." %}</p>
+  {% endif %}
+  {% if form.non_field_errors %}
+    {% for error in form.non_field_errors %}
+      <p class="errornote">{{ error }}</p>
+    {% endfor %}
+  {% endif %}
+  {% if user.is_authenticated %}
+    <p class="errornote">
+      {% blocktranslate trimmed %}
+        You are authenticated as {{ username }}, but are not authorized to access this page.
+      {% endblocktranslate %}
+    </p>
+  {% endif %}
+
+  <form action="{{ app_path }}" method="post" id="login-form">
+    {% csrf_token %}
+    <div class="form-row">
+      {{ form.username.errors }}
+      {{ form.username.label_tag }} {{ form.username }}
+    </div>
+    <div class="form-row">
+      {{ form.password.errors }}
+      {{ form.password.label_tag }} {{ form.password }}
+      <input type="hidden" name="next" value="{{ next }}">
+    </div>
+    <div class="submit-row">
+      <input type="submit" value="{% translate 'Log in' %}">
+    </div>
+  </form>
+  <p class="password-reset-link">
+    <a href="{% url 'password_reset' %}">Mot de passe oublié ?</a>
+  </p>
+</div>
+{% endblock %}
